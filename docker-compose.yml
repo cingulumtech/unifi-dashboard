@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    user: "65534:65534"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/config:/etc/prometheus
+      - ./prometheus/data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+    networks:
+      - unifi-dashboard
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    user: "472:472"
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=cingulum2025
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - unifi-dashboard
+
+  control-panel:
+    build:
+      context: ./control-panel
+      dockerfile: Dockerfile
+    container_name: unifi-control-panel
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - unifi-dashboard
+
+networks:
+  unifi-dashboard:
+    driver: bridge

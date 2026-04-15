@@ -1,0 +1,10 @@
+.env
+.env.local
+*.log
+logs/
+prometheus/data/
+grafana/data/
+.vscode/
+.idea/
+*.swp
+.DS_Store
